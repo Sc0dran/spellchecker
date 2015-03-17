@@ -108,6 +108,10 @@ public class CorpusReader
        return vocabulary.contains(word);
     }    
     
+    /* TODO: deze functie smoothened de tabel met waardes waaruit je je kansen haalt
+    Simpele oplossing: voeg overal 1 toe en verdeel de kansen opnieuw
+    Betere oplossing: voeg overal een waarde toe gebaseerd op andere informatie, 
+    zoals locatie op toetsenbord (en verdeel daarna de kansen opnieuw)*/
     public double getSmoothedCount(String NGram)
     {
         if(NGram == null || NGram.length() == 0)
