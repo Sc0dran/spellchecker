@@ -27,7 +27,24 @@ public class SpellCorrector {
         String finalSuggestion = "";
         
         /** CODE TO BE ADDED **/
-        
+        for (int i = 0; i < words.length; i++){
+            double bestvalue = 0;
+            String bestword = words[i];
+            
+            for (String word : getCandidateWords(words[i])){
+                double channel = calculateChannelModelProbability(word, words[i]);
+                double oneGramCount = cr.getSmoothedCount(word);
+                double preNGramCount = i==(words.length-1)  ? 1 : cr.getSmoothedCount(words[i-1] + word);
+                double postNGramCount = i==0                ? 1 : cr.getSmoothedCount(words[i-1] + word);
+                double twoGramCount = preNGramCount*postNGramCount;
+                
+//                if ( > bestvalue){
+//                    bestword = word;
+//                    bestvalue = 
+//                }
+            }
+        }
+
         return finalSuggestion.trim();
     }
     
