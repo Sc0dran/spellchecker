@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 public class SpellCorrector {
     final private CorpusReader cr;
@@ -30,9 +33,75 @@ public class SpellCorrector {
     
     public double calculateChannelModelProbability(String suggested, String incorrect) 
     {
-         /** CODE TO BE ADDED **/
+        char[] suggestedChars = (suggested + " ").toCharArray();
+        char[] incorrectChars = (incorrect + " ").toCharArray();
+        int slength = suggested.length();
+        int ilength = incorrect.length();
+        String errorString = "";
+        String correctString = "";
         
-        return 0.0;
+        if (slength < ilength) { //deletion
+            if (suggestedChars[0] == incorrectChars[1]) {
+                //first character got deleted: >a | >
+                errorString += ">" + incorrectChars[0];
+                correctString += ">";
+                System.out.println(errorString + "|" + correctString + " :1");
+                return cmr.getConfusionCount(errorString, correctString);
+            } else {
+                //check char 1 to suggestedChars.length for differences
+                for (int i = 1; i < ilength; i++) {
+                    //Confusion matrix deletion: ea | e
+                    if (suggestedChars[i] != incorrectChars[i]) {
+                        int shift = 0;
+                        if (incorrectChars[i-1] == incorrectChars[i]){
+                            shift = 1; //when error is double char: xx|x doesn't exist in confusion matrix so we take the chars one to the left
+                        }
+                        errorString += incorrectChars[i-1-shift];
+                        errorString += incorrectChars[i-shift];
+                        correctString += suggestedChars[i-1-shift];
+                        System.out.println(errorString + "|" + correctString + " :2");
+                        return cmr.getConfusionCount(errorString, correctString);
+                    }
+                }
+            }
+        } else if (slength > ilength) { //insertion
+            if (suggestedChars[1] == incorrectChars[0]) {
+                //first character got inserted: > | >a
+                errorString += ">";
+                correctString += ">" + suggestedChars[0];
+                System.out.println(errorString + "|" + correctString + " :4");
+                return cmr.getConfusionCount(errorString, correctString);
+            } else {
+                //check char 1 to incorrectChars.length for differences
+                for (int i = 1; i < slength; i++) {
+                    //Confusion matrix insertion: e | ea
+                    if (suggestedChars[i] != incorrectChars[i]) {
+                        int shift = 0;
+                        if (suggestedChars[i-1] == suggestedChars[i]) {
+                            shift = 1; //when error is forgotten double char: x|xx doesn't exist in confusion matrix so we take the chars one to the left
+                        }
+                        errorString += incorrectChars[i-1-shift];
+                        correctString += suggestedChars[i-1-shift];
+                        correctString += suggestedChars[i-shift];
+                        System.out.println(errorString + "|" + correctString + " :5");
+                        return cmr.getConfusionCount(errorString, correctString);
+                    }
+                }
+            }
+        } else { //slength == ilength
+            for (int i = 0; i < slength; i++) {
+                //Confusion matrix transposition: ae | ea
+                //Confusion matrix substitution: a | e
+                if (suggestedChars[i] != incorrectChars[i]) {
+                    errorString += incorrectChars[i];
+                    correctString += suggestedChars[i];
+                }
+            }
+            System.out.println(errorString + "|" + correctString + " :7");
+            return cmr.getConfusionCount(errorString, correctString);
+        }
+        
+        return cmr.getConfusionCount(errorString, correctString);
     }
          
       
@@ -42,6 +111,8 @@ public class SpellCorrector {
         
         StringBuilder sb;
         
+        //Add itself
+        ListOfWords.add(word);
         //Add deletions:
         for (int i = 0; i < word.length(); i++) {
             sb = new StringBuilder(word);
@@ -57,11 +128,11 @@ public class SpellCorrector {
             }
         }
         //Add transpositions:
-        for (int i = 0; i < word.length(); i++) {
-            for (int j = i + 1; j < word.length(); j++) {
+        if(word.length() >= 2){
+            for (int i = 0; i < word.length()-1; i++) {
                 sb = new StringBuilder(word);
-                sb.setCharAt(i, word.charAt(j));
-                sb.setCharAt(j, word.charAt(i));
+                sb.setCharAt(i, word.charAt(i+1));
+                sb.setCharAt(i+1, word.charAt(i));
                 ListOfWords.add(sb.toString());
             }
         }
