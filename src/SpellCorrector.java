@@ -40,7 +40,39 @@ public class SpellCorrector {
     {
         HashSet<String> ListOfWords = new HashSet<String>();
         
-        /** CODE TO BE ADDED **/
+        StringBuilder sb;
+        
+        //Add deletions:
+        for (int i = 0; i < word.length(); i++) {
+            sb = new StringBuilder(word);
+            sb.deleteCharAt(i);
+            ListOfWords.add(sb.toString());
+        }
+        //Add insertions:
+        for (int i = 0; i <= word.length(); i++) {
+            for (char c : ALPHABET) {
+                sb = new StringBuilder(word);
+                sb.insert(i, c);
+                ListOfWords.add(sb.toString());
+            }
+        }
+        //Add transpositions:
+        for (int i = 0; i < word.length(); i++) {
+            for (int j = i + 1; j < word.length(); j++) {
+                sb = new StringBuilder(word);
+                sb.setCharAt(i, word.charAt(j));
+                sb.setCharAt(j, word.charAt(i));
+                ListOfWords.add(sb.toString());
+            }
+        }
+        //Add substitutions:
+        for (int i = 0; i < word.length(); i++) {
+            for (char c : ALPHABET) {
+                sb = new StringBuilder(word);
+                sb.setCharAt(i, c);
+                ListOfWords.add(sb.toString());
+            }
+        }
         
         return cr.inVocabulary(ListOfWords);
     }          
