@@ -35,8 +35,8 @@ public class SpellCorrector {
             for (String word : getCandidateWords(words[i])){
                 double channel = calculateChannelModelProbability(word, words[i]);
                 double oneGramCount = cr.getSmoothedCount(word);
-                double preNGramCount = i==(words.length-1)  ? 1 : cr.getSmoothedCount(words[i-1] + word);
-                double postNGramCount = i==0                ? 1 : cr.getSmoothedCount(words[i-1] + word);
+                double preNGramCount = i==(words.length-1)  ? 1 : cr.getSmoothedCount(words[i-1] + " " + word);
+                double postNGramCount = i==0                ? 1 : cr.getSmoothedCount(word + " " + words[i+1]);
                 double twoGramCount = preNGramCount*postNGramCount;
                 
 //                if ( > bestvalue){
