@@ -9,7 +9,8 @@ public class SpellCorrector {
     final private ConfusionMatrixReader cmr;
     
     final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz'".toCharArray();
-    
+    final double LAMBDA = 1;
+    final double SCALE_FACTOR = 1;    
     
     public SpellCorrector(CorpusReader cr, ConfusionMatrixReader cmr) 
     {
@@ -33,12 +34,12 @@ public class SpellCorrector {
             String bestword = words[i];
             
             for (String word : getCandidateWords(words[i])){
-                double channel = calculateChannelModelProbability(word, words[i]);
-                double oneGramCount = cr.getSmoothedCount(word);
+                double likelihood = calculateChannelModelProbability(word, words[i]);
+                double prior = cr.getSmoothedCount(word)/cr.getVocabularySize();
                 double preNGramCount = i==(words.length-1)  ? 1 : cr.getSmoothedCount(words[i-1] + " " + word);
                 double postNGramCount = i==0                ? 1 : cr.getSmoothedCount(word + " " + words[i+1]);
                 double twoGramCount = preNGramCount*postNGramCount;
-                
+                double wcorrect = SCALE_FACTOR * likelihood * Math.pow(prior, LAMBDA);
 //                if ( > bestvalue){
 //                    bestword = word;
 //                    bestvalue = 
