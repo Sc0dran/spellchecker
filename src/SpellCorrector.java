@@ -129,7 +129,9 @@ public class SpellCorrector {
         StringBuilder sb;
         
         //Add itself
-        MapOfWords.put(word,0.95);
+        if(cr.inVocabulary(word)){
+            MapOfWords.put(word,0.95);
+        }
         //Add deletions:
         for (int i = 0; i < word.length(); i++) {
             sb = new StringBuilder(word);
