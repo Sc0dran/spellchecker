@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -120,7 +121,83 @@ public class SpellCorrector {
         
         return cmr.getConfusionCount(errorString, correctString);
     }
-         
+    
+    public HashMap<String,Double> getCandidateWordsChannel(String word)
+    {
+        HashMap<String,Double> MapOfWords = new HashMap<String,Double>();
+        
+        StringBuilder sb;
+        
+        //Add itself
+        MapOfWords.put(word,0.95);
+        //Add deletions:
+        for (int i = 0; i < word.length(); i++) {
+            sb = new StringBuilder(word);
+            sb.deleteCharAt(i);
+            String newword = sb.toString();
+            String error = "";
+            String correct = "";
+            error += (i==0 ? ">" : word.charAt(i-1));
+            error += word.charAt(i);
+            correct += (i==0 ? ">" : word.charAt(i-1));
+            double value = cmr.getConfusionCount(error, correct);
+            MapOfWords.put(newword, value);
+        }
+        //Add insertions:
+        for (int i = 0; i <= word.length(); i++) {
+            for (char c : ALPHABET) {
+                sb = new StringBuilder(word);
+                sb.insert(i, c);
+                String newword = sb.toString();
+                String error = "";
+                String correct = "";
+                error += (i==0 ? ">" : word.charAt(i-1));
+                correct += (i==0 ? ">" : word.charAt(i-1));
+                correct += word.charAt(i);
+                double value = cmr.getConfusionCount(error, correct);
+                MapOfWords.put(newword, value);
+            }
+        }
+        //Add transpositions:
+        if(word.length() >= 2){
+            for (int i = 0; i < word.length()-1; i++) {
+                sb = new StringBuilder(word);
+                sb.setCharAt(i, word.charAt(i+1));
+                sb.setCharAt(i+1, word.charAt(i));
+                String newword = sb.toString();
+                String error = "";
+                String correct = "";
+                error += word.charAt(i);
+                error += word.charAt(i+1);
+                correct += word.charAt(i+1);
+                correct += word.charAt(i);
+                double value = cmr.getConfusionCount(error, correct);
+                MapOfWords.put(newword, value);
+            }
+        }
+        //Add substitutions:
+        for (int i = 0; i < word.length(); i++) {
+            for (char c : ALPHABET) {
+                sb = new StringBuilder(word);
+                sb.setCharAt(i, c);
+                String newword = sb.toString();
+                String error = "";
+                String correct = "";
+                error += word.charAt(i);
+                correct += c;
+                double value = cmr.getConfusionCount(error, correct);
+                MapOfWords.put(newword, value);
+            }
+        }
+        
+        for(String s : MapOfWords.keySet()) {
+            if(!cr.inVocabulary(s)) {
+                MapOfWords.remove(s);
+            }
+        }
+        
+        return MapOfWords;
+    }
       
     public HashSet<String> getCandidateWords(String word)
     {
