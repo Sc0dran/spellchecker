@@ -124,6 +124,13 @@ public class CorpusReader
         /** ADD CODE HERE **/
         smoothedCount = getNGramCount(NGram) + 1;
         
+        int j = NGram.indexOf(" ");
+        if (j == -1) { //Unigram
+            smoothedCount /= ngrams.size();
+        } else { //Bigram
+            smoothedCount /= ngrams.size() + getNGramCount(NGram.substring(0, j));
+        }
+        
         return smoothedCount;        
     }
 }
