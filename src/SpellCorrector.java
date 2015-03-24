@@ -263,5 +263,4 @@ public class SpellCorrector {
         
         return cr.inVocabulary(ListOfWords);
     }          
->>>>>>> 1561b96373fdda8c872243c8d1c4bcb7b3801c3e
 }
