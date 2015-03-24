@@ -29,17 +29,25 @@ public class SpellCorrector {
         String finalSuggestion = "";
         
         /** CODE TO BE ADDED **/
-        double perplexity;
-        
         for (int i = 0; i < words.length; i++){
             double bestvalue = 0;
             String bestword = words[i];
-            
-            for (String word : getCandidateWords(words[i])){
-                double likelihood = calculateChannelModelProbability(word, words[i]);
-                double prior = cr.getSmoothedCount(word);
-                double NGramCount = i==(words.length-1)  ? 1 : cr.getSmoothedCount(words[i-1] + " " + word);
-                double wcorrect = SCALE_FACTOR * likelihood * Math.pow(prior, LAMBDA);
+
+            for (String word : getCandidateWords(words[i])) {
+                double likelihood =
+                        calculateChannelModelProbability(word, words[i]);
+                double prior =
+                        cr.getSmoothedCount(word) / cr.getVocabularySize();
+                double preNGramCount =
+                        i == (words.length - 1)  ? 1 :
+                        cr.getSmoothedCount(words[i - 1] + " " + word);
+                double postNGramCount =
+                        i == 0 ? 1 :
+                        cr.getSmoothedCount(word + " " + words[i + 1]);
+                double twoGramCount =
+                        preNGramCount * postNGramCount;
+                double wcorrect =
+                        SCALE_FACTOR * likelihood * Math.pow(prior, LAMBDA);
 //                if ( > bestvalue){
 //                    bestword = word;
 //                    bestvalue = 
@@ -255,4 +263,5 @@ public class SpellCorrector {
         
         return cr.inVocabulary(ListOfWords);
     }          
+>>>>>>> 1561b96373fdda8c872243c8d1c4bcb7b3801c3e
 }

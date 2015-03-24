@@ -91,7 +91,7 @@ public class SpellCorrectorTest {
     @Test
     public void testGetCandidateWords() throws IOException {
         System.out.println("getCandidateWords");
-        String word = "developmetn";
+        String word = "home";
         SpellCorrector instance = new SpellCorrector(new CorpusReader(), new ConfusionMatrixReader());
         HashSet<String> expResult = new HashSet<String>();
         expResult.add("development");
