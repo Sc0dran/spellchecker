@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,32 +30,51 @@ public class SpellCorrector {
         String finalSuggestion = "";
         
         /** CODE TO BE ADDED **/
+        double firstWordValue = 0;
+        double secondWordValue = 0;
+        String firstWord = "";
+        String secondWord = "";
+        int firstIndex = 0;
+        int secondIndex = 0;
+        
         for (int i = 0; i < words.length; i++){
-            double bestvalue = 0;
-            String bestword = words[i];
+            double bestValue = 0;
+            String bestWord = words[i];
 
             for (String word : getCandidateWords(words[i])) {
                 double likelihood =
                         calculateChannelModelProbability(word, words[i]);
-                double prior =
-                        cr.getSmoothedCount(word) / cr.getVocabularySize();
                 double preNGramCount =
                         i == (words.length - 1)  ? 1 :
                         cr.getSmoothedCount(words[i - 1] + " " + word);
                 double postNGramCount =
                         i == 0 ? 1 :
                         cr.getSmoothedCount(word + " " + words[i + 1]);
-                double twoGramCount =
+                double prior =
                         preNGramCount * postNGramCount;
                 double wcorrect =
                         SCALE_FACTOR * likelihood * Math.pow(prior, LAMBDA);
-//                if ( > bestvalue){
-//                    bestword = word;
-//                    bestvalue = 
-//                }
+                if (wcorrect > bestValue){
+                    bestWord = word;
+                    bestValue = wcorrect;
+                }
+            }
+            if (bestValue > firstWordValue) {
+                firstWordValue = bestValue;
+                firstWord = bestWord;
+                firstIndex = i;
+            }
+            else if (bestValue > secondWordValue) {
+                secondWordValue = bestValue;
+                secondWord = bestWord;
+                secondIndex = i;
             }
         }
-
+        words[firstIndex] = firstWord;
+        words[secondIndex] = secondWord;
+        for (String word : words) {
+            finalSuggestion += word + " ";
+        }
         return finalSuggestion.trim();
     }
     
