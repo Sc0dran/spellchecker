@@ -19,14 +19,25 @@ public class CorpusReader
     private HashMap<String,Integer> ngrams;
     private Set<String> vocabulary;
     
-    private double N; //Things we have seen
+    private double N; //Ngrams we have seen
     private Map<Integer,Double> Nc = 
-            new HashMap<Integer,Double>(); //Things we have seen c times
+            new HashMap<Integer,Double>(); //Amount of Ngrams we have seen c times
+    int GTSThreshold; //First not occuring count in Nc
         
     public CorpusReader() throws IOException
     {  
         readNGrams();
         readVocabulary();
+        
+        //Find first not occuring count in Nc
+        int i = 1;
+        while(i < Nc.size()){
+            if(!Nc.containsKey(i)){
+                GTSThreshold = i - 1;
+                break;
+            }
+            i++;
+        }
     }
     
     /**
@@ -129,13 +140,27 @@ public class CorpusReader
         
         double smoothedCount = 0.0;
         
-        //Good-Turing Smoothing
+        List<String> words = Arrays.asList(NGram.split(" "));
         int count = getNGramCount(NGram);
-        if (count == 0) {
-            smoothedCount = (double)Nc.get(1) / (double)N;
-        } else {
-            smoothedCount = (double)(count + 1) * (double)Nc.get(count + 1) / (double)Nc.get(count) / (double)N;
-        }
+        
+        //if (words.size() == 1) {
+            //Good-Turing Smoothing
+            if (count == 0) {
+                smoothedCount = Nc.get(1) / N;
+            } else if (count < GTSThreshold) {
+                smoothedCount = (double)(count + 1) * Nc.getOrDefault(count + 1, 0.0) / Nc.getOrDefault(count, 0.0) / N;
+            } else { //Here Good-Turing Smoothing becomes unreliable
+                smoothedCount = count / N;
+            }
+        /*} else if (words.size() == 2){
+            //Kneser-Ney Smoothing
+            if (count == 0) {
+                smoothedCount = Nc.get(1) / N;
+            } else {
+                smoothedCount = (count-0.75) - getNGramCount(words.get(0)) + getSmoothedCount(words.get(1));
+            }
+        }*/
+        
         
         return smoothedCount;        
     }
