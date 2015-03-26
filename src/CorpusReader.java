@@ -3,8 +3,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class CorpusReader 
@@ -14,6 +18,10 @@ public class CorpusReader
     
     private HashMap<String,Integer> ngrams;
     private Set<String> vocabulary;
+    
+    private double N; //Things we have seen
+    private Map<Integer,Double> Nc = 
+            new HashMap<Integer,Double>(); //Things we have seen c times
         
     public CorpusReader() throws IOException
     {  
@@ -60,6 +68,10 @@ public class CorpusReader
             try {
                 count = Integer.parseInt(s1);
                 ngrams.put(s2, count);
+                
+                Nc.put(count, Nc.getOrDefault(count, 0.0) + 1); 
+                //Increase things we have seen "count" times
+                N++; //Increase things seen
             } catch (NumberFormatException nfe) {
                 throw new NumberFormatException("NumberformatError: " + s1);
             }
@@ -108,10 +120,6 @@ public class CorpusReader
        return vocabulary.contains(word);
     }    
     
-    /* TODO: deze functie smoothened de tabel met waardes waaruit je je kansen haalt
-    Simpele oplossing: voeg overal 1 toe en verdeel de kansen opnieuw
-    Betere oplossing: voeg overal een waarde toe gebaseerd op andere informatie, 
-    zoals locatie op toetsenbord (en verdeel daarna de kansen opnieuw)*/
     public double getSmoothedCount(String NGram)
     {
         if(NGram == null || NGram.length() == 0)
@@ -121,14 +129,12 @@ public class CorpusReader
         
         double smoothedCount = 0.0;
         
-        /** ADD CODE HERE **/
-        smoothedCount = getNGramCount(NGram) + 1;
-        
-        int j = NGram.indexOf(" ");
-        if (j == -1) { //Unigram
-            smoothedCount /= ngrams.size();
-        } else { //Bigram
-            smoothedCount /= ngrams.size() + getNGramCount(NGram.substring(0, j));
+        //Good-Turing Smoothing
+        int count = getNGramCount(NGram);
+        if (count == 0) {
+            smoothedCount = (double)Nc.get(1) / (double)N;
+        } else {
+            smoothedCount = (double)(count + 1) * (double)Nc.get(count + 1) / (double)Nc.get(count) / (double)N;
         }
         
         return smoothedCount;        
