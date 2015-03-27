@@ -14,7 +14,7 @@ public class SpellChecker {
         boolean inPeach = false; // set this to true if you submit to peach!!!
         
         try {
-            CorpusReader cr = new CorpusReaderGTSmooth();
+            CorpusReader cr = new CorpusReaderAddKSmooth();
             ConfusionMatrixReader cmr = new ConfusionMatrixReader();
             SpellCorrector sc = new SpellCorrector(cr, cmr);
             if (inPeach) {

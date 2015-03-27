@@ -19,10 +19,10 @@ public class CorpusReaderGTSmooth extends CorpusReader
             new HashMap<Integer,Double>(); //Amount of unigrams we have seen c times
     private int unigramThreshold; //First not occuring count in unigramNc
     
-    private double bigramN; //Unigrams we have seen
+    private double bigramN; //Bigrams we have seen
     private Map<Integer,Double> bigramNc = 
-            new HashMap<Integer,Double>(); //Amount of unigrams we have seen c times
-    private int bigramThreshold; //First not occuring count in unigramNc
+            new HashMap<Integer,Double>(); //Amount of bigrams we have seen c times
+    private int bigramThreshold; //First not occuring count in bigramNc
         
     public CorpusReaderGTSmooth() throws IOException
     {  
@@ -47,6 +47,10 @@ public class CorpusReaderGTSmooth extends CorpusReader
             }
             i++;
         }
+        System.out.println("unigramscount:" + unigramNc.toString());
+        System.out.println("unigramsT:" + unigramThreshold);
+        System.out.println("bigramscount:" + bigramNc.toString());
+        System.out.println("bigramsT:" + bigramThreshold);
     }
     
     @Override
@@ -83,6 +87,7 @@ public class CorpusReaderGTSmooth extends CorpusReader
         }
     }
     
+    @Override
     public double getSmoothedCount(String NGram)
     {
         if(NGram == null || NGram.length() == 0)
@@ -100,7 +105,7 @@ public class CorpusReaderGTSmooth extends CorpusReader
             if (count == 0) {
                 smoothedCount = unigramNc.get(1) / unigramN;
             } else if (count < unigramThreshold) {
-                smoothedCount = (double)(count + 1) * unigramNc.getOrDefault(count + 1, 0.0) 
+                smoothedCount = (double)(count + 1) * unigramNc.get(count + 1) 
                             / unigramNc.get(count) 
                             / unigramN;
             } else { //Here Good-Turing Smoothing becomes unreliable
@@ -110,11 +115,11 @@ public class CorpusReaderGTSmooth extends CorpusReader
             if (count == 0) {
                 smoothedCount = bigramNc.get(1) / bigramN;
             } else if (count < bigramThreshold) {
-                smoothedCount = (double)(count + 1) * bigramNc.getOrDefault(count + 1, 0.0) 
+                smoothedCount = (double)(count + 1) * bigramNc.get(count + 1) 
                             / bigramNc.get(count) 
                             / (getSmoothedCount(words.get(0)) * unigramN);
             } else { //Here Good-Turing Smoothing becomes unreliable
-                smoothedCount = count / getSmoothedCount(words.get(0));
+                smoothedCount = count / (getSmoothedCount(words.get(0))*unigramN);
             }
         }
         

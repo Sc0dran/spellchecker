@@ -12,7 +12,7 @@ public class SpellCorrector {
     final private ConfusionMatrixReader cmr;
     
     final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz'".toCharArray();
-    final double LAMBDA = 1;
+    final double LAMBDA = 10;
     final double SCALE_FACTOR = 1;    
     
     public SpellCorrector(CorpusReader cr, ConfusionMatrixReader cmr) 
@@ -72,9 +72,10 @@ public class SpellCorrector {
                     bestWord = word;
                     bestValue = wcorrect;
                 }
+                //System.out.println(word + ": " + wcorrect);
             }
-            System.out.println("likelihoods:" + likelihoods.toString());
-            System.out.println("priors:" + priors.toString());
+            //System.out.println("likelihoods:" + likelihoods.toString());
+            //System.out.println("priors:" + priors.toString());
             
             String[] newPhrase = words.clone();
             newPhrase[i] = bestWord;
@@ -89,11 +90,11 @@ public class SpellCorrector {
     
     public double calculateNGramProbability(String[] phrase)
     {
-        double probability = 0;
+        double probability = 0.0;
         for(int i = 1; i < phrase.length; i++){
-            probability += Math.log(cr.getSmoothedCount(phrase[i - 1] + " " + phrase[i])
-                                    / cr.getSmoothedCount(phrase[i - 1]));
+            probability += Math.log(cr.getSmoothedCount(phrase[i - 1] + " " + phrase[i]));
         }
+        //System.out.println(Arrays.asList(phrase).toString() + ": " + probability);
         return probability;
     }
     

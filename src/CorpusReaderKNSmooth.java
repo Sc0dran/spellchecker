@@ -66,14 +66,14 @@ public class CorpusReaderKNSmooth extends CorpusReader
                     //Unigram
                     unigramNc.put(count, unigramNc.getOrDefault(count, 0.0) + 1);
                     //Increase unigrams we have seen
-                    unigramN++;
+                    unigramN += count;
                 } else {
                     //Bigram
                     String[] words = s2.split(" ");
                     uniquePreceders.put(words[1], uniquePreceders.getOrDefault(words[1], 0.0) + 1);
                     uniqueFollowers.put(words[0], uniqueFollowers.getOrDefault(words[0], 0.0) + 1);
                     //Increase bigrams we have seen
-                    bigramN++;
+                    bigramN += count;
                 }
             } catch (NumberFormatException nfe) {
                 throw new NumberFormatException("NumberformatError: " + s1);
@@ -81,6 +81,7 @@ public class CorpusReaderKNSmooth extends CorpusReader
         }
     }
     
+    @Override
     public double getSmoothedCount(String NGram)
     {
         if(NGram == null || NGram.length() == 0)
@@ -94,7 +95,10 @@ public class CorpusReaderKNSmooth extends CorpusReader
         int count = getNGramCount(NGram);
         
         if (words.size() == 1) { //Unigrams
-            smoothedCount = ((double)count) / unigramN;
+            //Unigram
+            unigramNc.put(count, unigramNc.getOrDefault(count, 0.0) + 1);
+            //Increase unigrams we have seen
+            unigramN += count;
         } else if (words.size() == 2){ //Bigrams
             //Kneser-Ney Smoothing
             smoothedCount = ( Math.max(count-d, 0.0) 

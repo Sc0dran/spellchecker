@@ -26,7 +26,7 @@ public class CorpusReaderGTSmoothTest {
     @Test
     public void testGetSmoothedCount() throws IOException {
         System.out.println("getSmoothedCount");
-        String NGram = "the some";
+        String NGram = "hm locations";
         CorpusReaderGTSmooth instance = new CorpusReaderGTSmooth();
         double expResult = 0.0;
         double result = instance.getSmoothedCount(NGram);
