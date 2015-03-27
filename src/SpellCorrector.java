@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class SpellCorrector {
             
             Map<String,Double> likelihoods = new HashMap<String,Double>();
             Map<String,Double> priors = new HashMap<String,Double>();
-            for (String word : getCandidateWords(words[i])) {
+            for (String word : candidateWords) {
                 double likelihood =
                         calculateChannelModelProbability(word, words[i])*cr.getSmoothedCount(word);
                 likelihoods.put(word, likelihood);
@@ -72,10 +73,7 @@ public class SpellCorrector {
                     bestWord = word;
                     bestValue = wcorrect;
                 }
-                //System.out.println(word + ": " + wcorrect);
             }
-            //System.out.println("likelihoods:" + likelihoods.toString());
-            //System.out.println("priors:" + priors.toString());
             
             String[] newPhrase = words.clone();
             newPhrase[i] = bestWord;
