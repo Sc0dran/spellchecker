@@ -62,7 +62,7 @@ public class SpellCorrectorTest {
         System.out.println("getCandidateWordsChannel");
         String word = "develoopment";
         ConfusionMatrixReader cmr = new ConfusionMatrixReader();
-        SpellCorrector instance = new SpellCorrector(new CorpusReader(), cmr);
+        SpellCorrector instance = new SpellCorrector(new CorpusReaderKNSmooth(), cmr);
         HashMap<String, Double> expResult = new HashMap<String,Double>();
         expResult.put("development", (double)cmr.getConfusionCount("lo", "l"));
         expResult.put(word, 0.95);
@@ -79,7 +79,7 @@ public class SpellCorrectorTest {
         String suggested = "development";
         String incorrect = "edvelopment";
         ConfusionMatrixReader cmr = new ConfusionMatrixReader();
-        SpellCorrector instance = new SpellCorrector(new CorpusReader(), cmr);
+        SpellCorrector instance = new SpellCorrector(new CorpusReaderKNSmooth(), cmr);
         double expResult = cmr.getConfusionCount("ed", "de");
         double result = instance.calculateChannelModelProbability(suggested, incorrect);
         assertEquals(expResult, result, 0.0);
@@ -92,7 +92,7 @@ public class SpellCorrectorTest {
     public void testGetCandidateWords() throws IOException {
         System.out.println("getCandidateWords");
         String word = "home";
-        SpellCorrector instance = new SpellCorrector(new CorpusReader(), new ConfusionMatrixReader());
+        SpellCorrector instance = new SpellCorrector(new CorpusReaderKNSmooth(), new ConfusionMatrixReader());
         HashSet<String> expResult = new HashSet<String>();
         expResult.add("development");
         HashSet<String> result = instance.getCandidateWords(word);

@@ -14,7 +14,7 @@ public class SpellChecker {
         boolean inPeach = false; // set this to true if you submit to peach!!!
         
         try {
-            CorpusReader cr = new CorpusReader();
+            CorpusReader cr = new CorpusReaderGTSmooth();
             ConfusionMatrixReader cmr = new ConfusionMatrixReader();
             SpellCorrector sc = new SpellCorrector(cr, cmr);
             if (inPeach) {
@@ -30,7 +30,8 @@ public class SpellChecker {
     
     static void nonPeachTest(SpellCorrector sc) throws IOException { 
             String[] sentences = {
-                "at the hme locations there were traces of water"
+                "at the hme locations there were traces of water",
+                "the development of diabetes us present in mice that harry a transgene"
             };
             
             for(String s0: sentences) {

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SpellCorrector {
     final private CorpusReader cr;
@@ -30,20 +32,31 @@ public class SpellCorrector {
         String finalSuggestion = "";
         
         /** CODE TO BE ADDED **/
-        double firstWordValue = 0;
-        double secondWordValue = 0;
-        String firstWord = "";
-        String secondWord = "";
-        int firstIndex = 0;
-        int secondIndex = 0;
+        words = getMaxPhrase(getMaxPhrase(words));
+        
+        for (String word : words) {
+            finalSuggestion += word + " ";
+        }
+        return finalSuggestion.trim();
+    }
+    
+    public String[] getMaxPhrase(String[] words)
+    {
+        double maxP = calculateNGramProbability(words);
+        String[] maxPhrase = words;
         
         for (int i = 0; i < words.length; i++){
             double bestValue = 0;
             String bestWord = words[i];
-
+            
+            Set<String> candidateWords = getCandidateWords(words[i]);
+            
+            Map<String,Double> likelihoods = new HashMap<String,Double>();
+            Map<String,Double> priors = new HashMap<String,Double>();
             for (String word : getCandidateWords(words[i])) {
                 double likelihood =
-                        calculateChannelModelProbability(word, words[i]);
+                        calculateChannelModelProbability(word, words[i])*cr.getSmoothedCount(word);
+                likelihoods.put(word, likelihood);
                 double preNGramCount =
                         i == 0 ? 1 :
                         cr.getSmoothedCount(words[i - 1] + " " + word);
@@ -52,6 +65,7 @@ public class SpellCorrector {
                         cr.getSmoothedCount(word + " " + words[i + 1]);
                 double prior =
                         preNGramCount * postNGramCount;
+                priors.put(word, prior);
                 double wcorrect =
                         SCALE_FACTOR * likelihood * Math.pow(prior, LAMBDA);
                 if (wcorrect > bestValue){
@@ -59,24 +73,28 @@ public class SpellCorrector {
                     bestValue = wcorrect;
                 }
             }
-            System.out.println("Value " + i + ": " + bestValue + "\n");
-            if (bestValue > firstWordValue) {
-                firstWordValue = bestValue;
-                firstWord = bestWord;
-                firstIndex = i;
+            System.out.println("likelihoods:" + likelihoods.toString());
+            System.out.println("priors:" + priors.toString());
+            
+            String[] newPhrase = words.clone();
+            newPhrase[i] = bestWord;
+            if (maxP < calculateNGramProbability(newPhrase)){
+                maxP = calculateNGramProbability(newPhrase);
+                maxPhrase = newPhrase;
             }
-            else if (bestValue > secondWordValue) {
-                secondWordValue = bestValue;
-                secondWord = bestWord;
-                secondIndex = i;
-            }
+            
         }
-        words[firstIndex] = firstWord;
-        words[secondIndex] = secondWord;
-        for (String word : words) {
-            finalSuggestion += word + " ";
+        return maxPhrase;
+    }
+    
+    public double calculateNGramProbability(String[] phrase)
+    {
+        double probability = 0;
+        for(int i = 1; i < phrase.length; i++){
+            probability += Math.log(cr.getSmoothedCount(phrase[i - 1] + " " + phrase[i])
+                                    / cr.getSmoothedCount(phrase[i - 1]));
         }
-        return finalSuggestion.trim();
+        return probability;
     }
     
     public double calculateChannelModelProbability(String suggested, String incorrect) 
@@ -177,7 +195,7 @@ public class SpellCorrector {
                 error += (i==0 ? ">" : word.charAt(i-1-shift));
                 error += word.charAt(i-shift);
                 correct += (i==0 ? ">" : newword.charAt(i-1-shift));
-                double value = cmr.getConfusionCount(error, correct);
+                double value = cmr.getConfusionCount(error, correct) * cr.getSmoothedCount(newword);
                 MapOfWords.put(newword, value);
             }
         }
