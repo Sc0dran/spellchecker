@@ -48,6 +48,7 @@ public class CorpusReaderAddKSmooth extends CorpusReader
         }
     }
     
+    @Override
     public double getSmoothedCount(String NGram)
     {
         if(NGram == null || NGram.length() == 0)

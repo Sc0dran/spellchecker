@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /*
@@ -18,11 +20,14 @@ import java.util.Set;
  *
  * @author s132303
  */
-public abstract class CorpusReader {
+public class CorpusReader {
     static final String CNTFILE_LOC = "samplecnt.txt";
     static final String VOCFILE_LOC = "samplevoc.txt";
     protected HashMap<String, Integer> ngrams;
     protected Set<String> vocabulary;
+    
+    private int unigramN;
+    private double k = 1;
 
     public CorpusReader() {
     }
@@ -59,6 +64,10 @@ public abstract class CorpusReader {
             try {
                 count = Integer.parseInt(s1);
                 ngrams.put(s2, count);
+                if (s2.split(" ").length == 1) {
+                    //Increase unigrams we have seen
+                    unigramN += count;
+                }
             } catch (NumberFormatException nfe) {
                 throw new NumberFormatException("NumberformatError: " + s1);
             }
@@ -100,5 +109,27 @@ public abstract class CorpusReader {
         return vocabulary.contains(word);
     }
     
-    public abstract double getSmoothedCount(String NGram);
+    //Default implementation is add one
+    public double getSmoothedCount(String NGram)
+    {
+        if(NGram == null || NGram.length() == 0)
+        {
+            throw new IllegalArgumentException("NGram must be non-empty.");
+        }
+        
+        double smoothedCount = 0.0;
+        
+        List<String> words = Arrays.asList(NGram.split(" "));
+        int count = getNGramCount(NGram);
+        
+        //Good-Turing Smoothing
+        if (words.size() == 1) { //Unigrams
+            smoothedCount = (double)(count + k) / (unigramN + (k*getVocabularySize()));
+        } else if (words.size() == 2){ //Bigrams
+            smoothedCount = ((double)count + k) 
+                        / (getNGramCount(words.get(0)) + (k*getVocabularySize()));
+        }
+        
+        return smoothedCount;        
+    }
 }
