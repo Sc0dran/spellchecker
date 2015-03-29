@@ -174,33 +174,32 @@ public class SpellCorrector {
         return cmr.getConfusionCount(errorString, correctString);
     }
     
-    public HashMap<String,Double> getCandidateWordsChannel(String word)
-    {
-        HashMap<String,Double> MapOfWords = new HashMap<String,Double>();
-        
+    public HashMap<String,Double> getCandidateWordsChannel(String word) {
+
+        HashMap<String, Double> MapOfWords = new HashMap<String, Double>();
         StringBuilder sb;
-        
+
         //Add itself
-        if(cr.inVocabulary(word)){
-            MapOfWords.put(word,NO_ERROR);
+        if (cr.inVocabulary(word)) {
+            MapOfWords.put(word, NO_ERROR);
         }
         //Add deletions:
         for (int i = 0; i < word.length(); i++) {
             sb = new StringBuilder(word);
             sb.deleteCharAt(i);
             String newword = sb.toString();
-            if(cr.inVocabulary(newword)){
+            if (cr.inVocabulary(newword)) {
                 int shift = 0;
-                if (i > 0){
-                    if (word.charAt(i-1) == word.charAt(i)){
+                if (i > 0) {
+                    if (word.charAt(i - 1) == word.charAt(i)) {
                         shift = 1; //when error is double char: xx|x doesn't exist in confusion matrix so we take the chars one to the left
                     }
                 }
                 String error = "";
                 String correct = "";
-                error += (i==0 ? ">" : word.charAt(i-1-shift));
-                error += word.charAt(i-shift);
-                correct += (i==0 ? ">" : newword.charAt(i-1-shift));
+                error += (i == 0 ? ">" : word.charAt(i - 1 - shift));
+                error += word.charAt(i - shift);
+                correct += (i == 0 ? ">" : newword.charAt(i - 1 - shift));
                 double value = cmr.getConfusionCount(error, correct) * cr.getSmoothedCount(newword);
                 System.out.println(error + "|" + correct + " " + value);
                 MapOfWords.put(newword, value);
@@ -212,18 +211,18 @@ public class SpellCorrector {
                 sb = new StringBuilder(word);
                 sb.insert(i, c);
                 String newword = sb.toString();
-                if(cr.inVocabulary(newword)){
+                if (cr.inVocabulary(newword)) {
                     int shift = 0;
-                    if (i > 1){
-                        if (newword.charAt(i-1) == newword.charAt(i)){
+                    if (i > 1) {
+                        if (newword.charAt(i - 1) == newword.charAt(i)) {
                             shift = 1; //when error is forgotten double char: x|xx doesn't exist in confusion matrix so we take the chars one to the left
                         }
                     }
                     String error = "";
                     String correct = "";
-                    error += (i==0 ? ">" : word.charAt(i-1-shift));
-                    correct += (i==0 ? ">" : newword.charAt(i-1-shift));
-                    correct += newword.charAt(i-shift);
+                    error += (i == 0 ? ">" : word.charAt(i - 1 - shift));
+                    correct += (i == 0 ? ">" : newword.charAt(i - 1 - shift));
+                    correct += newword.charAt(i - shift);
                     double value = cmr.getConfusionCount(error, correct) * cr.getSmoothedCount(newword);
                     System.out.println(error + "|" + correct + " " + value);
                     MapOfWords.put(newword, value);
@@ -231,18 +230,18 @@ public class SpellCorrector {
             }
         }
         //Add transpositions:
-        if(word.length() >= 2){
-            for (int i = 0; i < word.length()-1; i++) {
+        if (word.length() >= 2) {
+            for (int i = 0; i < word.length() - 1; i++) {
                 sb = new StringBuilder(word);
-                sb.setCharAt(i, word.charAt(i+1));
-                sb.setCharAt(i+1, word.charAt(i));
+                sb.setCharAt(i, word.charAt(i + 1));
+                sb.setCharAt(i + 1, word.charAt(i));
                 String newword = sb.toString();
-                if(cr.inVocabulary(newword)){
+                if (cr.inVocabulary(newword)){
                     String error = "";
                     String correct = "";
                     error += word.charAt(i);
                     error += word.charAt(i+1);
-                    correct += newword.charAt(i+1);
+                    correct += newword.charAt(i + 1);
                     correct += newword.charAt(i);
                     double value = cmr.getConfusionCount(error, correct) * cr.getSmoothedCount(newword);
                     System.out.println(error + "|" + correct + " " + value);
@@ -256,7 +255,7 @@ public class SpellCorrector {
                 sb = new StringBuilder(word);
                 sb.setCharAt(i, c);
                 String newword = sb.toString();
-                if(cr.inVocabulary(newword)){
+                if(cr.inVocabulary(newword)) {
                     String error = "";
                     String correct = "";
                     error += word.charAt(i);
