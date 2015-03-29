@@ -40,7 +40,7 @@ public class CorpusReader {
      * @return 0 if <NGram> cannot be found,
      * otherwise count of <NGram> in file
      */
-    public int getNGramCount(String nGram) throws NumberFormatException {
+    final public int getNGramCount(String nGram) throws NumberFormatException {
         if (nGram == null || nGram.length() == 0) {
             throw new IllegalArgumentException("NGram must be non-empty.");
         }
@@ -74,7 +74,7 @@ public class CorpusReader {
         }
     }
 
-    protected void readVocabulary() throws FileNotFoundException, IOException {
+    final protected void readVocabulary() throws FileNotFoundException, IOException {
         vocabulary = new HashSet<>();
         FileInputStream fis = new FileInputStream(VOCFILE_LOC);
         BufferedReader in = new BufferedReader(new InputStreamReader(fis));
@@ -89,7 +89,7 @@ public class CorpusReader {
      *
      * @return the size of the number of unique words in the dataset
      */
-    public int getVocabularySize() {
+    final public int getVocabularySize() {
         return vocabulary.size();
     }
 
@@ -105,15 +105,13 @@ public class CorpusReader {
         return h;
     }
 
-    public boolean inVocabulary(String word) {
+    final public boolean inVocabulary(String word) {
         return vocabulary.contains(word);
     }
     
     //Default implementation is add one
-    public double getSmoothedCount(String NGram)
-    {
-        if(NGram == null || NGram.length() == 0)
-        {
+    public double getSmoothedCount(String NGram) {
+        if (NGram == null || NGram.length() == 0) {
             throw new IllegalArgumentException("NGram must be non-empty.");
         }
         
@@ -124,10 +122,10 @@ public class CorpusReader {
         
         //Good-Turing Smoothing
         if (words.size() == 1) { //Unigrams
-            smoothedCount = (double)(count + k) / (unigramN + (k*getVocabularySize()));
-        } else if (words.size() == 2){ //Bigrams
+            smoothedCount = (double)(count + k) / (unigramN + (k * getVocabularySize()));
+        } else if (words.size() == 2) { //Bigrams
             smoothedCount = ((double)count + k) 
-                        / (getNGramCount(words.get(0)) + (k*getVocabularySize()));
+                        / (getNGramCount(words.get(0)) + (k * getVocabularySize()));
         }
         
         return smoothedCount;        
