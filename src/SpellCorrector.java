@@ -12,7 +12,7 @@ public class SpellCorrector {
     final private ConfusionMatrixReader cmr;
     
     final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz'".toCharArray();
-    final double LAMBDA = 2;
+    final double LAMBDA = 1;
     final double NO_ERROR = 0.95;
     final int MAX_EDITS = 2;
     
