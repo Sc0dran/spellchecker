@@ -12,9 +12,11 @@ public class SpellCorrector {
     final private ConfusionMatrixReader cmr;
     
     final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz'".toCharArray();
-    final double LAMBDA = 2;
+    final double LAMBDA = 1;
     final double NO_ERROR = 0.95;
     final int MAX_EDITS = 2;
+    
+    private boolean[] corrected;
     
     public SpellCorrector(CorpusReader cr, ConfusionMatrixReader cmr) 
     {
@@ -29,6 +31,9 @@ public class SpellCorrector {
             
         String[] words = phrase.split(" ");
         String finalSuggestion = "";
+        
+        //Corrected array represents is the word at words[i] is corrected
+        corrected = new boolean[words.length];
         
         //Get phrase with max probability of all sentences with MAX_EDITS edited words
         for (int i = 0; i < MAX_EDITS; i++) {
@@ -48,40 +53,51 @@ public class SpellCorrector {
     final public String[] getMaxPhrase(String[] words) {
         double maxP = calculateNGramProbability(words);
         String[] maxPhrase = words;
+        Integer wordEditIndex = null;
         
         for (int i = 0; i < words.length; i++) {
-            double bestValue = 0;
-            String bestWord = words[i];
-            
-            Set<String> candidateWords = getCandidateWords(words[i]);
-            
-            for (String word : candidateWords) {
-                double likelihood =
-                        cr.getSmoothedCount(word) 
-                        * calculateChannelModelProbability(word,words[i]);
-                double preNGramCount =
-                        i == 0 ? 1 :
-                        cr.getSmoothedCount(words[i - 1] + " " + word);
-                double postNGramCount =
-                        i == (words.length - 1) ? 1 :
-                        cr.getSmoothedCount(word + " " + words[i + 1]);
-                double prior =
-                        preNGramCount * postNGramCount;
-                double wcorrect =
-                        likelihood * Math.pow(prior, LAMBDA);
-                if (wcorrect > bestValue) {
-                    bestWord = word;
-                    bestValue = wcorrect;
+            if (!corrected[i]) {
+                double bestValue = 0;
+                String bestWord = words[i];
+
+                Set<String> candidateWords = getCandidateWords(words[i]);
+
+                for (String word : candidateWords) {
+                    double likelihood =
+                            cr.getSmoothedCount(word) 
+                            * calculateChannelModelProbability(word,words[i]);
+                    double preNGramCount =
+                            i == 0 ? 1 :
+                            cr.getSmoothedCount(words[i - 1] + " " + word);
+                    double postNGramCount =
+                            i == (words.length - 1) ? 1 :
+                            cr.getSmoothedCount(word + " " + words[i + 1]);
+                    double prior =
+                            preNGramCount * postNGramCount;
+                    double wcorrect =
+                            likelihood * Math.pow(prior, LAMBDA);
+                    if (wcorrect > bestValue) {
+                        bestWord = word;
+                        bestValue = wcorrect;
+                    }
+                }
+                //Change newPhrase if it has more probability than the old newPhrase
+                String[] newPhrase = words.clone();
+                newPhrase[i] = bestWord;
+                if (maxP < calculateNGramProbability(newPhrase)) {
+                    maxP = calculateNGramProbability(newPhrase);
+                    maxPhrase = newPhrase;
+                    wordEditIndex = i;
                 }
             }
-            //Change newPhrase if it has more probability than the old newPhrase
-            String[] newPhrase = words.clone();
-            newPhrase[i] = bestWord;
-            if (maxP < calculateNGramProbability(newPhrase)) {
-                maxP = calculateNGramProbability(newPhrase);
-                maxPhrase = newPhrase;
-            }
-            
+        }
+        //If any word has changed the word and words around it cannot change again
+        if (wordEditIndex != null){
+            if (wordEditIndex!=0) 
+                    corrected[wordEditIndex-1] = true;
+            corrected[wordEditIndex] = true;
+            if (wordEditIndex!=words.length-1) 
+                    corrected[wordEditIndex-1] = true;
         }
         return maxPhrase;
     }
