@@ -121,6 +121,9 @@ public class SpellCorrector {
         String errorString = "";
         String correctString = "";
         
+        if(suggested.equals(incorrect)){
+        }
+        
         if (slength < ilength) { //deletion
             if (suggestedChars[0] == incorrectChars[1]) {
                 //first character got deleted: >a | >
