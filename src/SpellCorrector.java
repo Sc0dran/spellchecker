@@ -122,6 +122,7 @@ public class SpellCorrector {
         String correctString = "";
         
         if(suggested.equals(incorrect)){
+            return NO_ERROR;
         }
         
         if (slength < ilength) { //deletion
