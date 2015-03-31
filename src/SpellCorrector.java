@@ -79,15 +79,19 @@ public class SpellCorrector {
                     priors.put(word, prior);
                     double wcorrect =
                             likelihood * Math.pow(prior, LAMBDA);
+                    //System.out.println(word + ": " + wcorrect);
                     if (wcorrect > bestValue) {
                         bestWord = word;
                         bestValue = wcorrect;
                     }
                 }
+                System.out.println("likelihoods:" + likelihoods.toString());
+                System.out.println("priors:" + priors.toString());
                 
                 //Change newPhrase if it has more probability than the old newPhrase
                 String[] newPhrase = words.clone();
                 newPhrase[i] = bestWord;
+                //System.out.println(maxP + "<" + calculateNGramProbability(newPhrase));
                 if (maxP < calculateNGramProbability(newPhrase)) {
                     maxP = calculateNGramProbability(newPhrase);
                     maxPhrase = newPhrase;
@@ -116,6 +120,7 @@ public class SpellCorrector {
                 probability += Math.log10(cr.getSmoothedCount(phrase[i - 1] + " " + phrase[i]) * Math.pow(10, 9));
             }
         }
+        //System.out.println(probability);
         return probability;
     }
     
@@ -143,6 +148,7 @@ public class SpellCorrector {
                 if (value == 0.0) {
                     value = cr.getSmoothedCount(newword);
                 }
+                //System.out.println(value);
                 MapOfWords.put(newword, value);
             }
         }
@@ -162,6 +168,7 @@ public class SpellCorrector {
                     if (value == 0.0) {
                         value = cr.getSmoothedCount(newword);
                     }
+                    //System.out.println(value);
                     MapOfWords.put(newword, value);
                 }
             }
@@ -184,6 +191,7 @@ public class SpellCorrector {
                     if (value == 0.0) {
                         value = cr.getSmoothedCount(newword);
                     }
+                    //System.out.println(value);
                     MapOfWords.put(newword, value);
                 }
             }
@@ -204,6 +212,7 @@ public class SpellCorrector {
                         if (value == 0.0) {
                             value = cr.getSmoothedCount(newword);
                         }
+                        //System.out.println(value);
                         MapOfWords.put(newword, value);
                     }
                 }
@@ -225,6 +234,7 @@ public class SpellCorrector {
                 //first character got deleted: >a | >
                 errorString += ">" + incorrectChars[0];
                 correctString += ">";
+//                System.out.println(errorString + "|" + correctString + " :1");
                 return cmr.getConfusionCount(errorString, correctString);
             } else {
                 //check char 1 to suggestedChars.length for differences
@@ -238,6 +248,7 @@ public class SpellCorrector {
                         errorString += incorrectChars[i - 1 - shift];
                         errorString += incorrectChars[i - shift];
                         correctString += suggestedChars[i - 1 - shift];
+//                        System.out.println(errorString + "|" + correctString + " :2");
                         return cmr.getConfusionCount(errorString, correctString);
                     }
                 }
@@ -247,6 +258,7 @@ public class SpellCorrector {
                 //first character got inserted: > | >a
                 errorString += ">";
                 correctString += ">" + suggestedChars[0];
+//                System.out.println(errorString + "|" + correctString + " :4");
                 return cmr.getConfusionCount(errorString, correctString);
             } else {
                 //check char 1 to incorrectChars.length for differences
@@ -260,6 +272,7 @@ public class SpellCorrector {
                         errorString += incorrectChars[i - 1 - shift];
                         correctString += suggestedChars[i - 1 - shift];
                         correctString += suggestedChars[i - shift];
+//                        System.out.println(errorString + "|" + correctString + " :5");
                         return cmr.getConfusionCount(errorString, correctString);
                     }
                 }
@@ -273,6 +286,7 @@ public class SpellCorrector {
                     correctString += suggestedChars[i];
                 }
             }
+//            System.out.println(errorString + "|" + correctString + " :7");
             return cmr.getConfusionCount(errorString, correctString);
         }
         

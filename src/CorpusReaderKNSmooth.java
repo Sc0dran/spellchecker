@@ -11,21 +11,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class CorpusReaderKNSmooth extends CorpusReader {
+public class CorpusReaderKNSmooth extends CorpusReader 
+{
     
     private double unigramN; //Unigrams we have seen
     
     double d = 0.75; //Bigram discount
     
     private double bigramTypes; //Bigram types we have seen
-    private Map<String, Double> uniquePredecessors = 
-            new HashMap<String, Double>(); 
+    private Map<String,Double> uniquePredecessors = 
+            new HashMap<String,Double>(); 
     //How many unique words precede String
     private Map<String,Double> uniqueFollowers = 
-            new HashMap<String, Double>();
+            new HashMap<String,Double>();
     //How many unique words follow String
         
-    public CorpusReaderKNSmooth() throws IOException {  
+    public CorpusReaderKNSmooth() throws IOException
+    {  
         readNGrams();
         readVocabulary();
     }
@@ -56,7 +58,7 @@ public class CorpusReaderKNSmooth extends CorpusReader {
                     uniquePredecessors.put(words[1], uniquePredecessors.getOrDefault(words[1], 0.0) + 1);
                     uniqueFollowers.put(words[0], uniqueFollowers.getOrDefault(words[0], 0.0) + 1);
                     //Increase bigrams we have seen
-                    bigramTypes++;
+                    bigramTypes ++;
                 }
             } catch (NumberFormatException nfe) {
                 throw new NumberFormatException("NumberformatError: " + s1);
@@ -65,8 +67,10 @@ public class CorpusReaderKNSmooth extends CorpusReader {
     }
     
     @Override
-    final public double getSmoothedCount(String NGram) {
-        if (NGram == null || NGram.length() == 0) {
+    public double getSmoothedCount(String NGram)
+    {
+        if(NGram == null || NGram.length() == 0)
+        {
             throw new IllegalArgumentException("NGram must be non-empty.");
         }
         
@@ -78,11 +82,11 @@ public class CorpusReaderKNSmooth extends CorpusReader {
         if (words.size() == 1) { //Unigrams
             //Add 1 Smoothing
             smoothedCount = (double)(count + 1) / (unigramN + getVocabularySize());
-        } else if (words.size() == 2) { //Bigrams
+        } else if (words.size() == 2){ //Bigrams
             //Kneser-Ney Smoothing
-            smoothedCount = ( Math.max(count - d, 0.0) 
-                        / (getSmoothedCount(words.get(0)) * unigramN))
-                        + ( interpolationWeight(words.get(0)) * Pcontinuation(words.get(1)));
+            smoothedCount = ( Math.max(count-d, 0.0) 
+                        / (getSmoothedCount(words.get(0)) * unigramN) )
+                        + ( interpolationWeight(words.get(0)) * Pcontinuation(words.get(1)) );
         }
         
         return smoothedCount;        
