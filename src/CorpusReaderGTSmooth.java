@@ -102,15 +102,7 @@ public class CorpusReaderGTSmooth extends CorpusReader
         
         //Good-Turing Smoothing
         if (words.size() == 1) { //Unigrams
-            if (count == 0) {
-                smoothedCount = unigramNc.get(1) / unigramN;
-            } else if (count < unigramThreshold) {
-                smoothedCount = (double)(count + 1) * unigramNc.get(count + 1) 
-                            / unigramNc.get(count) 
-                            / unigramN;
-            } else { //Here Good-Turing Smoothing becomes unreliable
-                smoothedCount = count / unigramN;
-            }
+            smoothedCount = (double)(count + 1) / (unigramN + (getVocabularySize()));
         } else if (words.size() == 2){ //Bigrams
             if (count == 0) {
                 smoothedCount = bigramNc.get(1) / bigramN;

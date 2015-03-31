@@ -14,7 +14,7 @@ public class SpellChecker {
         boolean inPeach = false; // set this to true if you submit to peach!!!
         
         try {
-            CorpusReader cr = new CorpusReaderAddKSmooth();
+            CorpusReader cr = new CorpusReaderKNSmooth();
             ConfusionMatrixReader cmr = new ConfusionMatrixReader();
             SpellCorrector sc = new SpellCorrector(cr, cmr);
             if (inPeach) {
@@ -41,7 +41,25 @@ public class SpellChecker {
                 "the development of diabetes is present in mice that carry a transgene",
                 "the development of diabetes is present in moce that carry a transgene",
                 "the development of idabetes is present in mice that carry a transgene",
-                "the development of diabetes us present in mice that harry a transgene"
+                "the development of diabetes us present in mice that harry a transgene",
+                "the development of diabetes is present in moce that carry a transgen",
+                "essentially there has been no change in japan",
+                "esentially there has been no change in japan",
+                "a response may be any measurable biological prameter that is corelated with the toxicant",
+                "she still refers to me as a fiend but i feel i am treated quite badly",
+                "she still refers to me as a friendd but i feel i am traeted quite badly",
+                "this addvice is taking into consideration the fact that the goverment bans political parties",
+                "this advise is taking into consideration the fact that the govenrment bans political parties",
+                "ancient china was one of the longest lasting sosieties in the history of the world",
+                "ancient china wqs one of the longest lasting societies in the histori of the world",
+                "anicent china was one of the longest lasting societties in the history of the world",
+                "ancient china was one of the longst lasting societies iin the history of the world",
+                "boxing glowes shield the knockles not the head",
+                "boing gloves shield the knuckles nut the head",
+                "boxing loves shield the knuckles nots the head",
+                "playing in the national football laegue was my draem",
+                "laying in the national footbal league was my dream",
+                
             };
             
             for(String s0: sentences) {

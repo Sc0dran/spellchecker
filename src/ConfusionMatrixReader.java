@@ -14,6 +14,7 @@ public class ConfusionMatrixReader {
     final static String DATAFILE_LOC = "confusion_matrix.txt";
     final private HashMap<String,Integer> confusionMatrix = new HashMap<>();
     final private HashMap<String,Integer> countMatrix = new HashMap<>();
+    private double totalCount = 0;
     public ConfusionMatrixReader() 
     {
         try {
@@ -38,7 +39,8 @@ public class ConfusionMatrixReader {
             try {
                 int count = Integer.parseInt(line.substring(space+1));
                 confusionMatrix.put(keys, count);
-
+                totalCount += count;
+                
                 String key = keys.substring(0,keys.indexOf('|'));  
                 Integer value = countMatrix.get(key);
                 if (value==null) {
@@ -63,5 +65,9 @@ public class ConfusionMatrixReader {
     {
         Integer count = confusionMatrix.get(error+"|"+correct);
         return count==null?0:count;
+    }
+    
+    public double getTotal(){
+        return totalCount;
     }
 }
