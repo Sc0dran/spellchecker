@@ -12,7 +12,7 @@ public class SpellCorrector {
     final private ConfusionMatrixReader cmr;
     
     final char[] ALPHABET = "abcdefghijklmnopqrstuvwxyz'".toCharArray();
-    final double LAMBDA = 8;
+    final double LAMBDA = 7.5;
     final double NO_ERROR = 0.95;
     final int MAX_EDITS = 2;
     
@@ -55,43 +55,39 @@ public class SpellCorrector {
         String[] maxPhrase = words;
         Integer wordEditIndex = null;
         
+        //Loop over all words in the phrase and try candidate words if that word can be corrected
         for (int i = 0; i < words.length; i++) {
-            if (!corrected[i]) {
+            if (!corrected[i]) { //Check if this word can be corrected
                 double bestValue = Double.NEGATIVE_INFINITY;
                 String bestWord = words[i];
-
-                Map<String, Double> candidateWords = getCandidateWordsChannel(words[i]);
                 
-                Map<String,Double> likelihoods = new HashMap<String,Double>();
-                Map<String,Double> priors = new HashMap<String,Double>();
-
+                //Generate candidate words
+                Map<String, Double> candidateWords = getCandidateWordsChannel(words[i]);
+                //Loop over all candidate words
                 for (String word : candidateWords.keySet()) {
+                    //likelihood = P(x|word) * P(word) where x is the error
                     double likelihood = candidateWords.get(word);
-                    likelihoods.put(word, likelihood);
                     double preNGramCount =
                             i == 0 ? 1 :
                             cr.getSmoothedCount(words[i - 1] + " " + word);
                     double postNGramCount =
                             i == (words.length - 1) ? 1 :
                             cr.getSmoothedCount(word + " " + words[i + 1]);
+                    //prior for w1 = P(w0 w1) * P(w1 w2)
                     double prior =
                             preNGramCount * postNGramCount;
-                    priors.put(word, prior);
-                    double wcorrect =
+                    double wordProbability =
                             likelihood * Math.pow(prior, LAMBDA);
-                    //System.out.println(word + ": " + wcorrect);
-                    if (wcorrect > bestValue) {
+                    //Check if word has more probability than last best word
+                    if (wordProbability > bestValue) {
                         bestWord = word;
-                        bestValue = wcorrect;
+                        bestValue = wordProbability;
                     }
                 }
-                System.out.println("likelihoods:" + likelihoods.toString());
-                System.out.println("priors:" + priors.toString());
                 
                 //Change newPhrase if it has more probability than the old newPhrase
                 String[] newPhrase = words.clone();
                 newPhrase[i] = bestWord;
-                //System.out.println(maxP + "<" + calculateNGramProbability(newPhrase));
                 if (maxP < calculateNGramProbability(newPhrase)) {
                     maxP = calculateNGramProbability(newPhrase);
                     maxPhrase = newPhrase;
@@ -99,7 +95,7 @@ public class SpellCorrector {
                 }
             }
         }
-        //If any word has changed the word and words around it cannot change again
+        //If any word has changed, the word and words around it cannot change again
         if (wordEditIndex != null){
             if (wordEditIndex!=0) 
                     corrected[wordEditIndex-1] = true;
@@ -111,7 +107,7 @@ public class SpellCorrector {
     }
     
     /*
-    Returns the probability of a phrase
+    *Returns the probability of a phrase
     */
     final public double calculateNGramProbability(String[] phrase) {
         double probability = 0.0;
@@ -120,10 +116,12 @@ public class SpellCorrector {
                 probability += Math.log10(cr.getSmoothedCount(phrase[i - 1] + " " + phrase[i]) * Math.pow(10, 9));
             }
         }
-        //System.out.println(probability);
         return probability;
     }
     
+    /*
+    *Returns candidate words with edit distance 1 and the probability of every word
+    */
     final public HashMap<String,Double> getCandidateWordsChannel(String word) {
         
         HashMap<String, Double> MapOfWords = new HashMap<String, Double>();
@@ -146,9 +144,8 @@ public class SpellCorrector {
                 correct += (i == 0 ? " " : newword.charAt(i - 1));
                 double value = cmr.getConfusionCount(error, correct) / cmr.getTotal() * cr.getSmoothedCount(newword);
                 if (value == 0.0) {
-                    value = cr.getSmoothedCount(newword);
+                    value =  1.0 / cmr.getTotal() * cr.getSmoothedCount(newword);
                 }
-                //System.out.println(value);
                 MapOfWords.put(newword, value);
             }
         }
@@ -166,9 +163,8 @@ public class SpellCorrector {
                     correct += newword.charAt(i);
                     double value = cmr.getConfusionCount(error, correct) / cmr.getTotal() * cr.getSmoothedCount(newword);
                     if (value == 0.0) {
-                        value = cr.getSmoothedCount(newword);
+                        value =  1.0 / cmr.getTotal() * cr.getSmoothedCount(newword);
                     }
-                    //System.out.println(value);
                     MapOfWords.put(newword, value);
                 }
             }
@@ -189,9 +185,8 @@ public class SpellCorrector {
                     correct += word.charAt(i);
                     double value = cmr.getConfusionCount(error, correct) / cmr.getTotal() * cr.getSmoothedCount(newword);
                     if (value == 0.0) {
-                        value = cr.getSmoothedCount(newword);
+                        value =  1.0 / cmr.getTotal() * cr.getSmoothedCount(newword);
                     }
-                    //System.out.println(value);
                     MapOfWords.put(newword, value);
                 }
             }
@@ -210,9 +205,8 @@ public class SpellCorrector {
                         correct += c;
                         double value = cmr.getConfusionCount(error, correct) / cmr.getTotal() * cr.getSmoothedCount(newword);
                         if (value == 0.0) {
-                            value = cr.getSmoothedCount(newword);
+                            value =  1.0 / cmr.getTotal() * cr.getSmoothedCount(newword);
                         }
-                        //System.out.println(value);
                         MapOfWords.put(newword, value);
                     }
                 }
@@ -234,7 +228,6 @@ public class SpellCorrector {
                 //first character got deleted: >a | >
                 errorString += ">" + incorrectChars[0];
                 correctString += ">";
-//                System.out.println(errorString + "|" + correctString + " :1");
                 return cmr.getConfusionCount(errorString, correctString);
             } else {
                 //check char 1 to suggestedChars.length for differences
@@ -248,7 +241,6 @@ public class SpellCorrector {
                         errorString += incorrectChars[i - 1 - shift];
                         errorString += incorrectChars[i - shift];
                         correctString += suggestedChars[i - 1 - shift];
-//                        System.out.println(errorString + "|" + correctString + " :2");
                         return cmr.getConfusionCount(errorString, correctString);
                     }
                 }
@@ -258,7 +250,6 @@ public class SpellCorrector {
                 //first character got inserted: > | >a
                 errorString += ">";
                 correctString += ">" + suggestedChars[0];
-//                System.out.println(errorString + "|" + correctString + " :4");
                 return cmr.getConfusionCount(errorString, correctString);
             } else {
                 //check char 1 to incorrectChars.length for differences
@@ -272,7 +263,6 @@ public class SpellCorrector {
                         errorString += incorrectChars[i - 1 - shift];
                         correctString += suggestedChars[i - 1 - shift];
                         correctString += suggestedChars[i - shift];
-//                        System.out.println(errorString + "|" + correctString + " :5");
                         return cmr.getConfusionCount(errorString, correctString);
                     }
                 }
@@ -286,7 +276,6 @@ public class SpellCorrector {
                     correctString += suggestedChars[i];
                 }
             }
-//            System.out.println(errorString + "|" + correctString + " :7");
             return cmr.getConfusionCount(errorString, correctString);
         }
         
