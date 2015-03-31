@@ -95,6 +95,9 @@ public class SpellCorrector {
                 }
             }
         }
+        if (calculateNGramProbability(maxPhrase) - calculateNGramProbability(words) < NO_ERROR) {
+            return words; //Return original phrase if the difference in probability is too low
+        }
         //If any word has changed, the word and words around it cannot change again
         if (wordEditIndex != null){
             if (wordEditIndex!=0) 
