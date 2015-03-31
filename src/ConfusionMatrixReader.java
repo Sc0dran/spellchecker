@@ -67,6 +67,7 @@ public class ConfusionMatrixReader {
         return count==null?0:count;
     }
     
+    //Get total confusion matrix count
     public double getTotal(){
         return totalCount;
     }

@@ -58,7 +58,7 @@ public class SpellChecker {
                 "boing gloves shield the knuckles nut the head",
                 "boxing loves shield the knuckles nots the head",
                 "playing in the national football laegue was my draem",
-                "laying in the national footbal league was my dream",
+                "laying in the national footbal league was my dream"
                 
             };
             

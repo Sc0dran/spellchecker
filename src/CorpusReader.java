@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * @author s132303
  */
-public class CorpusReader {
+public abstract class CorpusReader {
     static final String CNTFILE_LOC = "samplecnt.txt";
     static final String VOCFILE_LOC = "samplevoc.txt";
     protected HashMap<String, Integer> ngrams;
@@ -109,25 +109,5 @@ public class CorpusReader {
         return vocabulary.contains(word);
     }
     
-    //Default implementation is add one
-    public double getSmoothedCount(String NGram) {
-        if (NGram == null || NGram.length() == 0) {
-            throw new IllegalArgumentException("NGram must be non-empty.");
-        }
-        
-        double smoothedCount = 0.0;
-        
-        List<String> words = Arrays.asList(NGram.split(" "));
-        int count = getNGramCount(NGram);
-        
-        //Good-Turing Smoothing
-        if (words.size() == 1) { //Unigrams
-            smoothedCount = (double)(count + k) / (unigramN + (k * getVocabularySize()));
-        } else if (words.size() == 2) { //Bigrams
-            smoothedCount = ((double)count + k) 
-                        / (getNGramCount(words.get(0)) + (k * getVocabularySize()));
-        }
-        
-        return smoothedCount;        
-    }
+    public abstract double getSmoothedCount(String NGram);
 }

@@ -39,8 +39,6 @@ public class CorpusReaderAddKSmooth extends CorpusReader
                 if (s2.split(" ").length == 1) {
                     //Increase unigrams we have seen
                     unigramN += count;
-                } else {
-                    //Increase bigrams we have seen
                 }
             } catch (NumberFormatException nfe) {
                 throw new NumberFormatException("NumberformatError: " + s1);
