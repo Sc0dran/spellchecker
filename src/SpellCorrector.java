@@ -78,8 +78,12 @@ public class SpellCorrector {
                             preNGramCount * postNGramCount;
                     double wordProbability =
                             likelihood * Math.pow(prior, LAMBDA);
+<<<<<<< HEAD
                     //Check if word has more probability than last best word
                     if (wordProbability > bestValue) {
+=======
+                    if (wcorrect > bestValue) {
+>>>>>>> origin/master
                         bestWord = word;
                         bestValue = wordProbability;
                     }
