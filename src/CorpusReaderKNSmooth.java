@@ -19,7 +19,7 @@ public class CorpusReaderKNSmooth extends CorpusReader
     double d = 0.75; //Bigram discount
     
     private double bigramTypes; //Bigram types we have seen
-    private Map<String,Double> uniquePreceders = 
+    private Map<String,Double> uniquePredecessors = 
             new HashMap<String,Double>(); 
     //How many unique words precede String
     private Map<String,Double> uniqueFollowers = 
@@ -55,7 +55,7 @@ public class CorpusReaderKNSmooth extends CorpusReader
                 } else {
                     //Bigram
                     String[] words = s2.split(" ");
-                    uniquePreceders.put(words[1], uniquePreceders.getOrDefault(words[1], 0.0) + 1);
+                    uniquePredecessors.put(words[1], uniquePredecessors.getOrDefault(words[1], 0.0) + 1);
                     uniqueFollowers.put(words[0], uniqueFollowers.getOrDefault(words[0], 0.0) + 1);
                     //Increase bigrams we have seen
                     bigramTypes ++;
@@ -94,7 +94,7 @@ public class CorpusReaderKNSmooth extends CorpusReader
     
     //How likely is w to appear as a novel continuation
     private double Pcontinuation(String w) {
-        return uniquePreceders.getOrDefault(w, 0.0) / bigramTypes;
+        return uniquePredecessors.getOrDefault(w, 0.0) / bigramTypes;
     }
     
     //
